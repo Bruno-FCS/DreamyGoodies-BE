@@ -1,4 +1,8 @@
-FROM ibm-semeru-runtimes:open-23-jdk
-RUN mkdir /opt/app
-COPY japp.jar /opt/app
-CMD ["java", "-jar", "/opt/app/japp.jar"]
+FROM maven:3.8.5-openjdk-17 AS build
+COPY . .
+RUN mvn clean package -DskipTests
+
+FROM openjdk:17.0.1-jdk-slim
+COPY --from=build /target/BackEnd-0.0.1-SNAPSHOT.jar BackEnd.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","BackEnd.jar"]
